@@ -14,6 +14,7 @@ export type ServidorRow = {
   unidade_id: string | null;
   data_admissao: string | null;
   data_desligamento: string | null;
+  carga_horaria?: string | null;
   [k: string]: unknown;
 };
 

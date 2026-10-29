@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
-import { Filtros, FILTRO_INICIAL, aplicarFiltros } from "@/components/Filtros";
+import { Filtros, FILTRO_INICIAL, aplicarFiltros, type FiltroState } from "@/components/Filtros";
 import { Panel, StatCard, Vazio } from "@/components/kit";
 import { usePerms, useRefs, useServidores } from "@/lib/data";
 import { contarPor } from "@/lib/calc";
@@ -37,7 +37,7 @@ function Painel() {
   const { can } = usePerms();
   const refs = useRefs();
   const serv = useServidores();
-  const [f, setF] = useState({ ...FILTRO_INICIAL, status: "todos" as const });
+  const [f, setF] = useState<FiltroState>({ ...FILTRO_INICIAL, status: "todos" });
 
   const rows = useMemo(() => (serv.data ? aplicarFiltros(serv.data, f) : []), [serv.data, f]);
   const ids = useMemo(() => rows.map((r) => r.id), [rows]);

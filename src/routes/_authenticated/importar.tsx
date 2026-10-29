@@ -63,7 +63,7 @@ function Importar() {
 
   const dados = useMemo(() => {
     if (!arquivo || !aba || !XLSXmod) return { colunas: [] as string[], linhas: [] as Record<string, unknown>[] };
-    const ws = arquivo.wb.Sheets[aba];
+    const ws = arquivo.wb.Sheets[aba]!;
     const linhas = XLSXmod.utils.sheet_to_json<Record<string, unknown>>(ws, { range: linhaCab - 1, defval: null, raw: true });
     const colunas = Object.keys(linhas[0] ?? {}).filter((c) => !c.startsWith("__EMPTY"));
     return { colunas, linhas: linhas.filter((l) => Object.values(l).some((v) => v != null && String(v).trim() !== "")) };
@@ -74,14 +74,14 @@ function Importar() {
   const R = refs.data;
 
   async function abrir(file: File) {
-    if (file.size > 15 * 1024 * 1024) return toast.error("Arquivo muito grande (máx. 15 MB).");
-    if (!/\.(xlsx|csv)$/i.test(file.name)) return toast.error("Formato não aceito. Use XLSX ou CSV.");
+    if (file.size > 15 * 1024 * 1024) return void toast.error("Arquivo muito grande (máx. 15 MB).");
+    if (!/\.(xlsx|csv)$/i.test(file.name)) return void toast.error("Formato não aceito. Use XLSX ou CSV.");
     const X = await import("xlsx");
     setX(X);
     const buf = await file.arrayBuffer();
     const wb = X.read(buf, { type: "array", cellDates: true, dense: false });
     setArquivo({ nome: file.name, wb });
-    const primeira = wb.SheetNames[0];
+    const primeira = wb.SheetNames[0] ?? "";
     escolherAba(X, wb, primeira);
     setPreview(null);
     setResultado(null);
@@ -89,7 +89,7 @@ function Importar() {
 
   function escolherAba(X: typeof import("xlsx"), wb: WorkBook, nome: string) {
     setAba(nome);
-    const ws = wb.Sheets[nome];
+    const ws = wb.Sheets[nome]!;
     const matriz = X.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: null, range: 0 }).slice(0, 12);
     const idx = matriz.findIndex((r) => (r ?? []).filter((c) => c != null && String(c).trim() !== "").length >= 3);
     const lc = idx >= 0 ? idx + 1 : 1;
@@ -102,7 +102,7 @@ function Importar() {
   }
 
   function analisar() {
-    if (!map.matricula || !map.nome) return toast.error("Relacione ao menos as colunas de matrícula e nome.");
+    if (!map.matricula || !map.nome) return void toast.error("Relacione ao menos as colunas de matrícula e nome.");
     const regs = extrair(dados.linhas, map, linhaCab + 1);
     const existentes = new Map(serv.data!.map((s) => [s.matricula, s]));
     const res = classificar(regs, existentes, (reg, ex) => {
@@ -112,7 +112,7 @@ function Importar() {
         const r = resolver(R, tab, reg[campo] as string | null);
         if ((r.id && r.id !== ex[COL_ID[tab]]) || r.novo) m.push(campo);
       }
-      if (sitPadrao && !reg.situacao && ex.situacao_id !== sitPadrao) m.push("situacao");
+      if (sitPadrao && !reg.situacao && ex["situacao_id"] !== sitPadrao) m.push("situacao");
       return m;
     });
     setPreview(res);
@@ -142,7 +142,7 @@ function Importar() {
           const r = resolver(R2, tab, reg[campo] as string | null);
           if (r.id) o[COL_ID[tab]] = r.id;
         }
-        if (!o.situacao_id && sitPadrao) o.situacao_id = sitPadrao;
+        if (!o["situacao_id"] && sitPadrao) o["situacao_id"] = sitPadrao;
         return o;
       };
       // 2. Novos registros
@@ -174,7 +174,7 @@ function Importar() {
       }
       const cont = (c: string) => preview.filter((p) => p.classe === c).length;
       await supabase.from("importacoes").insert({
-        arquivo_nome: arquivo!.nome, aba, usuario_id: me!.user!.id, usuario_email: me!.user!.email,
+        arquivo_nome: arquivo!.nome, aba, usuario_id: me!.user!.id, usuario_email: me!.user!.email ?? null,
         novos: cont("novo"), atualizados: cont("atualizar"), ignorados: cont("ignorar"), para_correcao: cont("correcao"),
         mapeamento: { ...map, situacao_padrao: sitPadrao || null } as never,
         dados_originais: dados.linhas.map((l) => { const c = { ...l }; if (map.cpf) delete c[map.cpf]; return c; }) as never,

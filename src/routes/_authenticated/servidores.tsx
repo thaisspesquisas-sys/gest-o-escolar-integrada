@@ -46,13 +46,13 @@ function Servidores() {
 
   async function alternarAtivo(s: ServidorRow, ativo: boolean) {
     const { error } = await supabase.from("servidores").update({ ativo }).eq("id", s.id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success(ativo ? "Registro reativado." : "Registro inativado. O histórico foi preservado.");
     inval("servidores");
   }
   async function remover(s: ServidorRow) {
     const { error } = await supabase.from("servidores").delete().eq("id", s.id);
-    if (error) return toast.error(error.code === "23503" ? "Registro vinculado a outros dados; prefira inativar." : error.message);
+    if (error) return void toast.error(error.code === "23503" ? "Registro vinculado a outros dados; prefira inativar." : error.message);
     toast.success("Registro excluído.");
     inval("servidores");
   }

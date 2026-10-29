@@ -20,6 +20,7 @@ export function analisarVaga(v: VagaRow, servidores: ServidorRow[], vinculos: Ma
   const afastadosDefinitivos = doCargo.filter((s) => ["aposentado", "exonerado", "desligado"].includes(sit(s) ?? "")).length;
   // Ocupadas = efetivos em exercício (temporários não ocupam cargo efetivo)
   const calc = calcularVaga(v, efetivos);
-  const necessidade = v.autorizadas == null ? null : Math.max(0, (calc.disponiveisCalculadas ?? 0)) + temporarios > 0 ? (calc.disponiveisCalculadas ?? 0) : 0;
+  // Necessidade estimada = cargos autorizados ainda sem efetivo (inclui os hoje supridos por temporários)
+  const necessidade = calc.disponiveisCalculadas;
   return { ...calc, efetivos, temporarios, outrasSituacoes, afastadosDefinitivos, necessidadeEstimada: necessidade };
 }
