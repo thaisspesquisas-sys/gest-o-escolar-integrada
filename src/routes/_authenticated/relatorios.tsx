@@ -223,7 +223,7 @@ function montar(tipo: Tipo, rows: ServidorRow[], R: Refs, vagas: VagaRow[], todo
         rows: hist.map((h) => {
           const a = (h.antes ?? {}) as Record<string, unknown>, d = (h.depois ?? {}) as Record<string, unknown>;
           const campos = Object.keys({ ...a, ...d }).filter((k) => !["updated_at", "updated_by"].includes(k) && JSON.stringify(a[k]) !== JSON.stringify(d[k]));
-          return { data: new Date(h.created_at).toLocaleString("pt-BR"), servidor: nomes.get(h.registro_id ?? "") ?? String(d.nome ?? a.nome ?? ""), acao: { INSERT: "Cadastro", UPDATE: "Alteração", DELETE: "Exclusão", INATIVACAO: "Inativação" }[h.acao] ?? h.acao, campos: h.acao === "UPDATE" || h.acao === "INATIVACAO" ? campos.join(", ") : "", usuario: h.usuario_email ?? "" };
+          return { data: new Date(h.created_at).toLocaleString("pt-BR"), servidor: nomes.get(h.registro_id ?? "") ?? String(d["nome"] ?? a["nome"] ?? ""), acao: { INSERT: "Cadastro", UPDATE: "Alteração", DELETE: "Exclusão", INATIVACAO: "Inativação" }[h.acao] ?? h.acao, campos: h.acao === "UPDATE" || h.acao === "INATIVACAO" ? campos.join(", ") : "", usuario: h.usuario_email ?? "" };
         }),
         usaFiltros: false,
       };

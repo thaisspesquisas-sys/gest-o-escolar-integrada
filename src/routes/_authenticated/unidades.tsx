@@ -156,7 +156,7 @@ function Unidades() {
 }
 
 function TurmasUnidade({ unidadeId, turmas, pode, ano, onChange }: { unidadeId: string; turmas: Turma[]; pode: boolean; ano: string; onChange: () => void }) {
-  const [n, setN] = useState({ etapa: ETAPAS[0], nome: "", turno: "Manhã", qtd: 1 });
+  const [n, setN] = useState({ etapa: ETAPAS[0]!, nome: "", turno: "Manhã", qtd: 1 });
   async function add() {
     if (!n.nome.trim()) return void toast.error("Informe o nome/série da turma.");
     const anoLetivo = Number(ano) || new Date().getFullYear();

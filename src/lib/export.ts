@@ -6,7 +6,7 @@ export type Cabecalho = {
   titulo: string;
   periodo?: string;
   filtros?: string;
-  brasao?: string | null;
+  brasao?: string | null | undefined;
 };
 
 const linhasCab = (c: Cabecalho) => [
