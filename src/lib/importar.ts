@@ -1,6 +1,14 @@
 // Leitura e classificação de planilhas (puro, sem acesso ao banco).
 import { cpfValido, somenteDigitos } from "./calc";
 
+export const LIMITE_PLANILHA_BYTES = 100 * 1024 * 1024;
+
+export function validarArquivoPlanilha(file: { name: string; size: number }): string | null {
+  if (file.size > LIMITE_PLANILHA_BYTES) return "Arquivo muito grande (máx. 100 MB).";
+  if (!/\.(xlsx|csv)$/i.test(file.name)) return "Formato não aceito. Use XLSX ou CSV.";
+  return null;
+}
+
 export const CAMPOS = [
   { key: "matricula", label: "Matrícula", obrigatorio: true },
   { key: "nome", label: "Nome completo", obrigatorio: true },
