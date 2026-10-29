@@ -18,6 +18,7 @@ import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
 import { Route as AuthenticatedSituacoesRouteImport } from './routes/_authenticated/situacoes'
 import { Route as AuthenticatedUnidadesRouteImport } from './routes/_authenticated/unidades'
+import { Route as AuthenticatedVagasRouteImport } from './routes/_authenticated/vagas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +64,11 @@ const AuthenticatedUnidadesRoute = AuthenticatedUnidadesRouteImport.update({
   path: '/unidades',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVagasRoute = AuthenticatedVagasRouteImport.update({
+  id: '/vagas',
+  path: '/vagas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/servidores': typeof AuthenticatedServidoresRoute
   '/situacoes': typeof AuthenticatedSituacoesRoute
   '/unidades': typeof AuthenticatedUnidadesRoute
+  '/vagas': typeof AuthenticatedVagasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/servidores': typeof AuthenticatedServidoresRoute
   '/situacoes': typeof AuthenticatedSituacoesRoute
   '/unidades': typeof AuthenticatedUnidadesRoute
+  '/vagas': typeof AuthenticatedVagasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/situacoes': typeof AuthenticatedSituacoesRoute
   '/_authenticated/unidades': typeof AuthenticatedUnidadesRoute
+  '/_authenticated/vagas': typeof AuthenticatedVagasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/servidores'
     | '/situacoes'
     | '/unidades'
+    | '/vagas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/servidores'
     | '/situacoes'
     | '/unidades'
+    | '/vagas'
   id:
     | '__root__'
     | '/'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/servidores'
     | '/_authenticated/situacoes'
     | '/_authenticated/unidades'
+    | '/_authenticated/vagas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -201,6 +213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnidadesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vagas': {
+      id: '/_authenticated/vagas'
+      path: '/vagas'
+      fullPath: '/vagas'
+      preLoaderRoute: typeof AuthenticatedVagasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -211,6 +230,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedSituacoesRoute: typeof AuthenticatedSituacoesRoute
   AuthenticatedUnidadesRoute: typeof AuthenticatedUnidadesRoute
+  AuthenticatedVagasRoute: typeof AuthenticatedVagasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -220,6 +240,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedSituacoesRoute: AuthenticatedSituacoesRoute,
   AuthenticatedUnidadesRoute: AuthenticatedUnidadesRoute,
+  AuthenticatedVagasRoute: AuthenticatedVagasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
