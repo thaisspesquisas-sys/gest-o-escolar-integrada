@@ -21,8 +21,8 @@ export const Route = createFileRoute("/_authenticated/vagas")({
   component: Vagas,
 });
 
-export const vagasQueryKey = ["vagas"];
-export function useVagas() {
+const vagasQueryKey = ["vagas"];
+function useVagas() {
   return useQuery({ queryKey: vagasQueryKey, queryFn: () => fetchAll<VagaRow>((a, b) => supabase.from("vagas").select("*").order("ano_referencia", { ascending: false }).range(a, b)) });
 }
 
