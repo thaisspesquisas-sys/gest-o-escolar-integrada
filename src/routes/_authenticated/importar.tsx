@@ -10,13 +10,13 @@ import { Confirmar } from "@/components/Confirmar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CAMPOS, classificar, extrair, norm, sugerirMapeamento, type Classificado, type Mapeamento, type Registro } from "@/lib/importar";
+import { CAMPOS, classificar, extrair, norm, sugerirMapeamento, validarArquivoPlanilha, type Classificado, type Mapeamento, type Registro } from "@/lib/importar";
 import { refsQuery, useInvalidate, usePerms, useRefs, useServidores, type Refs } from "@/lib/data";
 import { exportarExcel } from "@/lib/export";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/importar")({
-  head: () => ({ meta: [{ title: "Importar planilha — Gestão de Servidores" }, { name: "description", content: "Importação e atualização da base de servidores." }] }),
+  head: () => ({ meta: [{ title: "Importar planilha — Gestão de Servidores" }, { name: "description", content: "Importação e atualização da base de servidores." }, { property: "og:title", content: "Importar planilha — Gestão de Servidores" }, { property: "og:description", content: "Importação e atualização da base de servidores." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Importar,
 });
 
@@ -60,6 +60,7 @@ function Importar() {
   const [rodando, setRodando] = useState(false);
   const [resultado, setResultado] = useState<string | null>(null);
   const [XLSXmod, setX] = useState<typeof import("xlsx") | null>(null);
+  const [lendo, setLendo] = useState(false);
 
   const dados = useMemo(() => {
     if (!arquivo || !aba || !XLSXmod) return { colunas: [] as string[], linhas: [] as Record<string, unknown>[] };
@@ -74,17 +75,25 @@ function Importar() {
   const R = refs.data;
 
   async function abrir(file: File) {
-    if (file.size > 15 * 1024 * 1024) return void toast.error("Arquivo muito grande (máx. 15 MB).");
-    if (!/\.(xlsx|csv)$/i.test(file.name)) return void toast.error("Formato não aceito. Use XLSX ou CSV.");
-    const X = await import("xlsx");
-    setX(X);
-    const buf = await file.arrayBuffer();
-    const wb = X.read(buf, { type: "array", cellDates: true, dense: false });
-    setArquivo({ nome: file.name, wb });
-    const primeira = wb.SheetNames[0] ?? "";
-    escolherAba(X, wb, primeira);
-    setPreview(null);
-    setResultado(null);
+    const erro = validarArquivoPlanilha(file);
+    if (erro) return void toast.error(erro);
+    setLendo(true);
+    try {
+      const X = await import("xlsx");
+      const buf = await file.arrayBuffer();
+      const wb = X.read(buf, { type: "array", cellDates: true, dense: false });
+      const primeira = wb.SheetNames[0];
+      if (!primeira || !wb.Sheets[primeira]) throw new Error("A planilha não contém abas para importar.");
+      setX(X);
+      setArquivo({ nome: file.name, wb });
+      escolherAba(X, wb, primeira);
+      setPreview(null);
+      setResultado(null);
+    } catch {
+      toast.error("Não foi possível ler a planilha. Confira se o arquivo abre no Excel e tente novamente.");
+    } finally {
+      setLendo(false);
+    }
   }
 
   function escolherAba(X: typeof import("xlsx"), wb: WorkBook, nome: string) {
@@ -209,8 +218,8 @@ function Importar() {
       <Panel title="1. Arquivo">
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-primary px-4 py-3 text-sm font-medium text-primary hover:bg-secondary">
-            <Upload className="h-4 w-4" /> {arquivo ? arquivo.nome : "Selecionar arquivo"}
-            <input type="file" accept=".xlsx,.csv" className="hidden" onChange={(e) => e.target.files?.[0] && abrir(e.target.files[0])} />
+            <Upload className="h-4 w-4" /> {lendo ? "Lendo planilha…" : arquivo ? arquivo.nome : "Selecionar arquivo"}
+            <input type="file" accept=".xlsx,.csv" className="hidden" disabled={lendo} onChange={(e) => e.target.files?.[0] && abrir(e.target.files[0])} />
           </label>
           {arquivo && XLSXmod && (
             <>
