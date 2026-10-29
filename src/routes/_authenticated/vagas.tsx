@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, ArrowRightLeft } from "lucide-react";
+import { ImportarVagas, Remanejar } from "@/components/VagasAcoes";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
 import { Field, NativeSelect, RefSelect, Vazio } from "@/components/kit";
@@ -38,6 +39,8 @@ function Vagas() {
   const [unidade, setUnidade] = useState("");
   const [edit, setEdit] = useState<Partial<VagaRow> | null>(null);
   const [del, setDel] = useState<VagaRow | null>(null);
+  const [imp, setImp] = useState(false);
+  const [rem, setRem] = useState(false);
 
   if (!refs.data || !vagas.data) return <p className="text-muted-foreground">Carregando…</p>;
   const R = refs.data;
@@ -73,7 +76,7 @@ function Vagas() {
       <PageHeader
         title="Quadro de vagas"
         description="Informe por cargo as vagas previstas em lei e autorizadas. O sistema calcula ocupação com base nos efetivos em exercício. Aposentadorias e exonerações não geram vaga automaticamente: a disponibilidade só é “confirmada” após validação da equipe competente."
-        actions={pode && <Button onClick={() => setEdit({ ano_referencia: new Date().getFullYear() + 1, status_validacao: "em_analise", reservadas: 0 })}><Plus className="mr-2 h-4 w-4" />Nova linha do quadro</Button>}
+        actions={pode && <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => setImp(true)}><Upload className="mr-2 h-4 w-4" />Importar Excel</Button>{can("servidores.editar") && <Button variant="outline" onClick={() => setRem(true)}><ArrowRightLeft className="mr-2 h-4 w-4" />Remanejar servidor</Button>}<Button onClick={() => setEdit({ ano_referencia: new Date().getFullYear() + 1, status_validacao: "em_analise", reservadas: 0 })}><Plus className="mr-2 h-4 w-4" />Nova linha do quadro</Button></div>}
       />
       <div className="mb-3 flex flex-wrap gap-3">
         <NativeSelect className="w-40" value={ano} onChange={(e) => setAno(e.target.value)}><option value="">Todos os anos</option>{anos.map((a) => <option key={a}>{a}</option>)}</NativeSelect>
@@ -142,6 +145,8 @@ function Vagas() {
           <DialogFooter><Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button><Button onClick={salvar}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      <ImportarVagas open={imp} onOpenChange={setImp} R={R} vagas={vagas.data} onDone={() => vagas.refetch()} />
+      <Remanejar open={rem} onOpenChange={setRem} R={R} vagas={vagas.data} servidores={serv.data ?? []} onDone={() => { vagas.refetch(); serv.refetch(); }} />
       <Confirmar perigo open={!!del} onOpenChange={(o) => !o && setDel(null)} titulo="Excluir linha do quadro?" acao="Excluir" onConfirm={() => del && excluir(del)}>A exclusão ficará registrada na auditoria.</Confirmar>
     </>
   );
