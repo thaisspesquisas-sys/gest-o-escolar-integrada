@@ -14,9 +14,7 @@ export async function fetchAll<T>(build: (from: number, to: number) => PromiseLi
   return out;
 }
 
-export const refsQuery = queryOptions({
-  queryKey: ["refs"],
-  queryFn: async () => {
+async function loadRefs() {
     const [c, f, v, s, u] = await Promise.all([
       supabase.from("cargos").select("id,nome").order("nome"),
       supabase.from("funcoes").select("id,nome").order("nome"),
@@ -28,9 +26,9 @@ export const refsQuery = queryOptions({
     if (err) throw new Error(err.message);
     const mk = (rows: Ref[] | null) => ({ list: rows ?? [], map: new Map((rows ?? []).map((r) => [r.id, r])) });
     return { cargos: mk(c.data), funcoes: mk(f.data), vinculos: mk(v.data), situacoes: mk(s.data), unidades: mk(u.data as Ref[]) };
-  },
-});
-export type Refs = Awaited<ReturnType<typeof refsQuery.queryFn & object>>;
+}
+export const refsQuery = queryOptions({ queryKey: ["refs"], queryFn: loadRefs });
+export type Refs = Awaited<ReturnType<typeof loadRefs>>;
 
 export const servidoresQuery = queryOptions({
   queryKey: ["servidores"],
