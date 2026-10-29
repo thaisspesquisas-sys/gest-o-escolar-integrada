@@ -46,7 +46,7 @@ function Auditoria() {
                       <tr key={h.id} className="border-t align-top">
                         <td className="p-2 whitespace-nowrap">{new Date(h.created_at).toLocaleString("pt-BR")}</td>
                         <td className="p-2">{TABELAS[h.tabela] ?? h.tabela}</td><td className="p-2">{ACAO[h.acao] ?? h.acao}</td>
-                        <td className="p-2">{String(d?.nome ?? d?.matricula ?? d?.permissao ?? h.registro_id ?? "")}</td>
+                        <td className="p-2">{String(d?.["nome"] ?? d?.["matricula"] ?? d?.["permissao"] ?? h.registro_id ?? "")}</td>
                         <td className="p-2">{h.acao === "UPDATE" || h.acao === "INATIVACAO" ? diff(h.antes as Record<string, unknown>, h.depois as Record<string, unknown>).map((c) => c.k).join(", ") : ""}</td>
                         <td className="p-2">{h.usuario_email ?? "sistema"}</td>
                       </tr>

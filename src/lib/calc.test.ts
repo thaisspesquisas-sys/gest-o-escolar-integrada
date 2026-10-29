@@ -43,7 +43,7 @@ describe("importação", () => {
       ["2", { id: "b", matricula: "2", nome: "Bia" }],
       ["3", { id: "c", matricula: "3", nome: "Caio Antigo" }],
     ]);
-    const r = classificar(regs, ex, (reg, e) => (reg.nome !== e.nome ? ["nome"] : []));
+    const r = classificar(regs, ex, (reg, e) => (reg.nome !== e["nome"] ? ["nome"] : []));
     expect(r.map((x) => x.classe)).toEqual(["novo", "ignorar", "atualizar", "correcao", "correcao", "correcao"]);
   });
   it("valida CPF e datas do Excel", () => {

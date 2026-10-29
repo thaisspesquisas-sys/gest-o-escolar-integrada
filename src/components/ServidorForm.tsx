@@ -21,7 +21,7 @@ export function ServidorForm({ open, onClose, servidor, refs, podeCpf, onSaved }
 
   useEffect(() => {
     if (!open) return;
-    if (!servidor) return setF(VAZIO);
+    if (!servidor) { setF(VAZIO); return; }
     const base = Object.fromEntries(Object.keys(VAZIO).map((k) => [k, (servidor[k] as string | null) ?? ""])) as F;
     setF(base);
     if (podeCpf)
@@ -32,11 +32,11 @@ export function ServidorForm({ open, onClose, servidor, refs, podeCpf, onSaved }
   const inp = (k: keyof F, type = "text") => <Input type={type} value={f[k]} onChange={(e) => set(k)(e.target.value)} />;
 
   async function salvar() {
-    if (f.nome.trim().length < 3) return toast.error("Informe o nome completo.");
-    if (!f.matricula.trim()) return toast.error("Informe a matrícula.");
+    if (f.nome.trim().length < 3) return void toast.error("Informe o nome completo.");
+    if (!f.matricula.trim()) return void toast.error("Informe a matrícula.");
     const cpf = somenteDigitos(f.cpf);
-    if (podeCpf && cpf && !cpfValido(cpf)) return toast.error("CPF inválido.");
-    if (f.data_desligamento && f.data_admissao && f.data_desligamento < f.data_admissao) return toast.error("A data de desligamento não pode ser anterior à admissão.");
+    if (podeCpf && cpf && !cpfValido(cpf)) return void toast.error("CPF inválido.");
+    if (f.data_desligamento && f.data_admissao && f.data_desligamento < f.data_admissao) return void toast.error("A data de desligamento não pode ser anterior à admissão.");
     setSalvando(true);
     const { cpf: _c, ...resto } = f;
     const payload = Object.fromEntries(Object.entries(resto).map(([k, v]) => [k, typeof v === "string" && v.trim() === "" ? null : typeof v === "string" ? v.trim() : v]));
@@ -46,7 +46,7 @@ export function ServidorForm({ open, onClose, servidor, refs, podeCpf, onSaved }
     const { data, error } = await q;
     if (error) {
       setSalvando(false);
-      return toast.error(error.code === "23505" ? "Já existe um servidor com esta matrícula." : error.message);
+      return void toast.error(error.code === "23505" ? "Já existe um servidor com esta matrícula." : error.message);
     }
     if (podeCpf) {
       const r = cpf

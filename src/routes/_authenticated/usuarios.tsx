@@ -54,16 +54,16 @@ function Usuarios() {
     try { await mudar({ data: { userId, papel: papel as never } }); toast.success("Perfil alterado."); users.refetch(); } catch (e) { toast.error((e as Error).message); }
   }
   async function ativo(id: string, v: boolean) {
-    if (id === me?.user?.id) return toast.error("Você não pode desativar a própria conta.");
+    if (id === me?.user?.id) return void toast.error("Você não pode desativar a própria conta.");
     const { error } = await supabase.from("profiles").update({ ativo: v }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     users.refetch();
   }
   async function togglePerm(role: string, permissao: string, on: boolean) {
     const { error } = on
       ? await supabase.from("role_permissions").insert({ role: role as never, permissao })
       : await supabase.from("role_permissions").delete().eq("role", role as never).eq("permissao", permissao);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     perms.refetch();
   }
 

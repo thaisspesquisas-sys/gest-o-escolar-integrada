@@ -59,20 +59,20 @@ function Lista({ tab, itens, uso, cats, exercicio }: { tab: Tab; itens: Ref[]; u
   async function adicionar() {
     if (!novo.trim()) return;
     const { error } = await supabase.from(tab).insert({ nome: novo.trim() } as never);
-    if (error) return toast.error(error.code === "23505" ? "Já existe um item com este nome." : error.message);
+    if (error) return void toast.error(error.code === "23505" ? "Já existe um item com este nome." : error.message);
     setNovo("");
     inval("refs");
   }
   async function salvar(id: string) {
     const { error } = await supabase.from(tab).update(edits[id] as never).eq("id", id);
-    if (error) return toast.error(error.code === "23505" ? "Já existe um item com este nome." : error.message);
+    if (error) return void toast.error(error.code === "23505" ? "Já existe um item com este nome." : error.message);
     setEdits((e) => { const c = { ...e }; delete c[id]; return c; });
     toast.success("Salvo.");
     inval("refs", "servidores");
   }
   async function excluir(r: Ref) {
     const { error } = await supabase.from(tab).delete().eq("id", r.id);
-    if (error) return toast.error(error.code === "23503" ? "Item em uso por servidores ou vagas; não pode ser excluído." : error.message);
+    if (error) return void toast.error(error.code === "23503" ? "Item em uso por servidores ou vagas; não pode ser excluído." : error.message);
     inval("refs");
   }
   const mostra = itens.filter((i) => i.nome.toLowerCase().includes(busca.toLowerCase()));

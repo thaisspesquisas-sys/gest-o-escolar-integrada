@@ -35,7 +35,7 @@ function Config() {
 
   async function salvar() {
     const { error } = await supabase.from("configuracoes").update({ ...f, updated_at: new Date().toISOString() }).eq("id", 1);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Identidade visual atualizada.");
     qc.invalidateQueries({ queryKey: ["config"] });
   }

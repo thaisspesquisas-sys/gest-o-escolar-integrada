@@ -51,7 +51,7 @@ function Relatorios() {
   const refs = useRefs();
   const serv = useServidores();
   const cfg = useQuery(configQuery);
-  const vagas = useQuery({ queryKey: ["vagas"], queryFn: () => fetchAll<VagaRow>((a, b) => supabase.from("vagas").select("*").range(a, b)) });
+  const vagas = useQuery({ queryKey: ["vagas"], queryFn: () => fetchAll<VagaRow>((a, b) => supabase.from("vagas").select("*").range(a, b) as unknown as PromiseLike<{ data: VagaRow[] | null; error: { message: string } | null }>) });
   const [tipo, setTipo] = useState<Tipo>("geral");
   const [ordem, setOrdem] = useState("nome");
   const [periodo, setPeriodo] = useState(String(new Date().getFullYear()));

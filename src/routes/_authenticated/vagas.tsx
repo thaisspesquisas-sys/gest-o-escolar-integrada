@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/vagas")({
 
 const vagasQueryKey = ["vagas"];
 function useVagas() {
-  return useQuery({ queryKey: vagasQueryKey, queryFn: () => fetchAll<VagaRow>((a, b) => supabase.from("vagas").select("*").order("ano_referencia", { ascending: false }).range(a, b)) });
+  return useQuery({ queryKey: vagasQueryKey, queryFn: () => fetchAll<VagaRow>((a, b) => supabase.from("vagas").select("*").order("ano_referencia", { ascending: false }).range(a, b) as unknown as PromiseLike<{ data: VagaRow[] | null; error: { message: string } | null }>) });
 }
 
 const NUM = ["previstas_lei", "autorizadas", "reservadas", "previstas_concurso", "previstas_pss", "previstas_temporaria"] as const;
@@ -45,25 +45,25 @@ function Vagas() {
   const anos = [...new Set(vagas.data.map((v) => String(v.ano_referencia)))];
 
   async function salvar() {
-    if (!edit?.cargo_id) return toast.error("Selecione o cargo.");
+    if (!edit?.cargo_id) return void toast.error("Selecione o cargo.");
     const payload: Record<string, unknown> = {
       ano_referencia: Number(edit.ano_referencia) || new Date().getFullYear(), cargo_id: edit.cargo_id, funcao_id: edit.funcao_id || null, unidade_id: edit.unidade_id || null,
       status_validacao: edit.status_validacao ?? "em_analise", justificativa: edit.justificativa || null,
     };
     for (const k of NUM) {
       const v = edit[k];
-      if (v != null && String(v) !== "" && Number(v) < 0) return toast.error("Quantidades não podem ser negativas.");
+      if (v != null && String(v) !== "" && Number(v) < 0) return void toast.error("Quantidades não podem ser negativas.");
       payload[k] = v == null || String(v) === "" ? (k === "reservadas" ? 0 : null) : Number(v);
     }
     const { error } = edit.id ? await supabase.from("vagas").update(payload as never).eq("id", edit.id) : await supabase.from("vagas").insert(payload as never);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Quadro atualizado.");
     setEdit(null);
     vagas.refetch();
   }
   async function excluir(v: VagaRow) {
     const { error } = await supabase.from("vagas").delete().eq("id", v.id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     vagas.refetch();
   }
   const n = (x: number | null) => (x == null ? "—" : x);

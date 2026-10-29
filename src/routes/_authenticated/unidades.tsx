@@ -48,17 +48,17 @@ function Unidades() {
   const refresh = () => { unidades.refetch(); inval("refs"); };
 
   async function salvar() {
-    if (!edit?.nome?.trim()) return toast.error("Informe o nome da unidade.");
+    if (!edit?.nome?.trim()) return void toast.error("Informe o nome da unidade.");
     const payload = { nome: edit.nome.trim().toUpperCase(), codigo: edit.codigo || null, endereco: edit.endereco || null, localidade: edit.localidade || null, tipo: edit.tipo || null, situacao: edit.situacao || "Ativa", observacoes: edit.observacoes || null };
     const { error } = edit.id ? await supabase.from("unidades").update(payload).eq("id", edit.id) : await supabase.from("unidades").insert(payload);
-    if (error) return toast.error(error.code === "23505" ? "Já existe unidade com este nome ou código." : error.message);
+    if (error) return void toast.error(error.code === "23505" ? "Já existe unidade com este nome ou código." : error.message);
     toast.success("Unidade salva.");
     setEdit(null);
     refresh();
   }
   async function excluir(u: Unidade) {
     const { error } = await supabase.from("unidades").delete().eq("id", u.id);
-    if (error) return toast.error(error.code === "23503" ? "Há servidores ou vagas vinculados; altere a situação para inativa." : error.message);
+    if (error) return void toast.error(error.code === "23503" ? "Há servidores ou vagas vinculados; altere a situação para inativa." : error.message);
     refresh();
   }
 
@@ -158,17 +158,17 @@ function Unidades() {
 function TurmasUnidade({ unidadeId, turmas, pode, ano, onChange }: { unidadeId: string; turmas: Turma[]; pode: boolean; ano: string; onChange: () => void }) {
   const [n, setN] = useState({ etapa: ETAPAS[0], nome: "", turno: "Manhã", qtd: 1 });
   async function add() {
-    if (!n.nome.trim()) return toast.error("Informe o nome/série da turma.");
+    if (!n.nome.trim()) return void toast.error("Informe o nome/série da turma.");
     const anoLetivo = Number(ano) || new Date().getFullYear();
     const linhas = Array.from({ length: Math.min(30, Math.max(1, n.qtd)) }, (_, i) => ({ unidade_id: unidadeId, ano_letivo: anoLetivo, etapa: n.etapa, nome: n.qtd > 1 ? `${n.nome.trim()} ${String.fromCharCode(65 + i)}` : n.nome.trim(), turno: n.turno }));
     const { error } = await supabase.from("turmas").insert(linhas);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     setN({ ...n, nome: "", qtd: 1 });
     onChange();
   }
   async function rem(id: string) {
     const { error } = await supabase.from("turmas").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     onChange();
   }
   return (
