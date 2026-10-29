@@ -59,7 +59,7 @@ export function ImportarVagas({ open, onOpenChange, R, vagas, onDone }: Props) {
     for (const p of ok) {
       const payload: Record<string, unknown> = { ano_referencia: p.l.ano, cargo_id: p.cargo_id, funcao_id: p.funcao_id, unidade_id: p.unidade_id };
       for (const k of NUMS) if (p.l.nums[k] != null || !p.existenteId) payload[k] = p.l.nums[k] ?? (k === "reservadas" ? 0 : null);
-      if (p.l.justificativa) payload.justificativa = p.l.justificativa;
+      if (p.l.justificativa) payload["justificativa"] = p.l.justificativa;
       const { error } = p.existenteId
         ? await supabase.from("vagas").update(payload as never).eq("id", p.existenteId)
         : await supabase.from("vagas").insert({ ...payload, status_validacao: "em_analise" } as never);
