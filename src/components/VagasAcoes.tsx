@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { norm, validarArquivoPlanilha } from "@/lib/importar";
 import { CAMPOS_VAGA, NUMS, chaveVaga, extrairVagas, planejarRemanejamento, sugerirMapVaga, type MapVaga } from "@/lib/vagasImport";
-import { exportarExcel } from "@/lib/export";
 import type { Refs } from "@/lib/data";
 import type { VagaRow } from "@/lib/vagas";
 import type { ServidorRow } from "@/lib/calc";
@@ -72,7 +71,12 @@ export function ImportarVagas({ open, onOpenChange, R, vagas, onDone }: Props) {
     setRows([]); onOpenChange(false); onDone();
   }
 
-  const modelo = () => exportarExcel("modelo-quadro-de-vagas", [Object.fromEntries(CAMPOS_VAGA.map((c) => [c.label.replace(" *", ""), ""]))]);
+  const modelo = async () => {
+    const X = await import("xlsx");
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([CAMPOS_VAGA.map((c) => c.label.replace(" *", ""))]), "Quadro");
+    X.writeFile(wb, "modelo-quadro-de-vagas.xlsx");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
